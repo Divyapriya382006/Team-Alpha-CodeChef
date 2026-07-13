@@ -1,0 +1,23 @@
+{
+  "name": "team-alpha-codechef",
+  "version": "1.0.0",
+  "description": "",
+  "main": "seed-structure.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Divyapriya382006/Team-Alpha-CodeChef.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Divyapriya382006/Team-Alpha-CodeChef/issues"
+  },
+  "homepage": "https://github.com/Divyapriya382006/Team-Alpha-CodeChef#readme"
+}
