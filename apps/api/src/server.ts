@@ -1,6 +1,8 @@
+import http from 'http';
 import { config } from '@/config';
 import app from './app';
 import { prisma } from '@/lib/prisma';
+import { initSocket } from './lib/socket';
 
 const PORT = config.port;
 
@@ -14,7 +16,10 @@ async function start(): Promise<void> {
     process.exit(1);
   }
 
-  const server = app.listen(PORT, () => {
+  const server = http.createServer(app);
+  initSocket(server);
+
+  server.listen(PORT, () => {
     console.log(`CampusOS API running on port ${PORT} (${config.nodeEnv})`);
   });
 

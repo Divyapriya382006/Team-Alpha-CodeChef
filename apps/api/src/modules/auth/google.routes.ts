@@ -1,15 +1,14 @@
 import { Router } from 'express';
 import passport from '../../lib/passport';
 import { signToken } from '../../lib/jwt';
+import { config } from '../../config';
 
 const router = Router();
 
-const googleEnabled = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
-
 router.get('/google', (req, res, next) => {
-  if (!googleEnabled) {
+  if (!config.googleAuthEnabled) {
     return res.redirect(
-      `${process.env.FRONTEND_URL}/login?error=google_not_configured`
+      `${config.frontendUrl}/login?error=google_not_configured`
     );
   }
   passport.authenticate('google', {
@@ -21,9 +20,9 @@ router.get('/google', (req, res, next) => {
 router.get(
   '/google/callback',
   (req, res, next) => {
-    if (!googleEnabled) {
+    if (!config.googleAuthEnabled) {
       return res.redirect(
-        `${process.env.FRONTEND_URL}/login?error=google_not_configured`
+        `${config.frontendUrl}/login?error=google_not_configured`
       );
     }
     next();

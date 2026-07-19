@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { emitEventUpdate } from '@/lib/socket';
 import { BadRequestError, ForbiddenError, NotFoundError } from '@/lib/errors';
 import type { CreateEventInput, EditEventInput, RejectEventInput } from './schemas';
 
@@ -100,6 +101,12 @@ export const eventsService = {
       select: { id: true, status: true },
     });
 
+    emitEventUpdate({
+      eventId: event.id,
+      action: 'created',
+      status: event.status,
+      clubId,
+    });
     return event;
   },
 
@@ -140,7 +147,14 @@ export const eventsService = {
       select: EVENT_SELECT,
     });
 
-    return mapEventSummary(updated, updated._count.registrations);
+    const summary = mapEventSummary(updated, updated._count.registrations);
+    emitEventUpdate({
+      eventId: updated.id,
+      action: 'updated',
+      status: updated.status,
+      clubId: updated.clubId,
+    });
+    return summary;
   },
 
   /**
@@ -265,6 +279,12 @@ export const eventsService = {
       data: { status: 'APPROVED', reviewedById: callerId },
     });
 
+    emitEventUpdate({
+      eventId,
+      action: 'approved',
+      status: 'APPROVED',
+    });
+
     return { id: eventId, status: 'APPROVED' as const };
   },
 
@@ -290,6 +310,12 @@ export const eventsService = {
         reviewedById: callerId,
         rejectionReason: input.reason ?? null,
       },
+    });
+
+    emitEventUpdate({
+      eventId,
+      action: 'rejected',
+      status: 'REJECTED',
     });
 
     return { id: eventId, status: 'REJECTED' as const };
@@ -330,6 +356,10 @@ export const eventsService = {
       await tx.eventRegistration.create({ data: { eventId, userId: callerId } });
     });
 
+    emitEventUpdate({
+      eventId,
+      action: 'registered',
+    });
     return { eventId, userId: callerId };
   },
 
@@ -344,6 +374,10 @@ export const eventsService = {
     if (!registration) throw new NotFoundError('Not registered for this event');
 
     await prisma.eventRegistration.delete({ where: { id: registration.id } });
+    emitEventUpdate({
+      eventId,
+      action: 'unregistered',
+    });
   },
 
   /**
